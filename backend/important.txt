@@ -1,0 +1,134 @@
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', // Example for Gmail, adjust based on your email service
+  auth: {
+    user: process.env.EMAIL_USER, // Your email
+    pass: process.env.EMAIL_PASS, // Your email password or app password
+  },
+});
+
+router.post("/signup", (req, res) => {
+  const data = req.body;
+
+  console.log("Data received: ", data); // Log incoming data
+
+  // Check if the user with the same email already exists
+  User.findOne({ email: data.email })
+    .then((existingUser) => {
+      if (existingUser) {
+        return res.status(400).json({
+          message: "Email already exists. Please use a different email or verify your existing account.",
+        });
+      }
+
+      // Proceed to create a new user
+      let user = new User({
+        email: data.email,
+        password: data.password, // Assumes password is already hashed
+        type: data.type,
+      });
+
+      console.log("Attempting to save new user: ", user); // Log the user details
+
+      user
+        .save()
+        .then(() => {
+          console.log("User saved successfully"); // Log successful user save
+          // Create a verification token using JWT
+          const verificationToken = jwt.sign(
+            { _id: user._id },
+            authKeys.jwtSecretKey, // Use environment variable for secret
+            { expiresIn: "1h" } // Token expires in 1 hour
+          );
+
+          // Check user type (Recruiter or Job Applicant)
+          const userDetails =
+            user.type === "recruiter"
+              ? new Recruiter({
+                  userId: user._id,
+                  name: data.name,
+                  contactNumber: data.contactNumber,
+                  email: data.email,
+                  dob: data.dob,
+                  gender: data.gender,
+                  address: data.address,
+                  profile: data.profile,
+                  department: data.department,
+                  CUTMBRANCH: data.CUTMBRANCH,
+                  collegeaddress: data.collegeaddress,
+                  bio: data.bio,
+                })
+              : new JobApplicant({
+                  userId: user._id,
+                  name: data.name,
+                  education: data.education,
+                  skills: data.skills,
+                  certifications: data.certifications,
+                  rating: data.rating,
+                  cv: data.cv,
+                  contactNumber: data.contactNumber,
+                  cgpa: data.cgpa,
+                  dob: data.dob,
+                  gender: data.gender,
+                  address: data.address,
+                  institutename: data.institutename,
+                  tenthCertificate: data.tenthCertificate,
+                  twelfthCertificate: data.twelfthCertificate,
+                  highestQualification: data.highestQualification,
+                  profile: data.profile,
+                });
+
+          console.log("Attempting to save user details: ", userDetails); // Log the user details
+
+          // Save the user details (Recruiter or Job Applicant)
+          userDetails
+            .save()
+            .then(() => {
+              console.log("User details saved successfully"); // Log successful save
+              
+              // Send email verification link
+              const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: data.email,
+                subject: "Email Verification - Please verify your email",
+                html: `<p>Hello ${data.name},</p>
+                      <p>Thank you for signing up. Please click the link below to verify your email:</p>
+                      <a href="${process.env.FRONTEND_URL}/verify-email/${verificationToken}">Verify Email</a>
+                      <p>This link will expire in 1 hour.</p>
+                      <p>Best regards,<br>Your Company</p>`,
+              };
+
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  console.error("Error sending email:", error);
+                  return res.status(500).json({ message: "Error sending verification email" });
+                } else {
+                  console.log("Verification email sent:", info.response);
+                  return res.json({
+                    message: "Signup successful! Please check your email to verify your account.",
+                  });
+                }
+              });
+            })
+            .catch((err) => {
+              console.error("Error saving user details: ", err); // Log the error
+              user
+                .delete() // Delete user if saving details failed
+                .then(() => {
+                  return res.status(400).json({ message: "Error saving user details" });
+                })
+                .catch((err) => {
+                  console.error("Error deleting user after failure: ", err); // Log the error
+                  return res.status(500).json({ message: "Error registering user details", error: err });
+                });
+            });
+        })
+        .catch((err) => {
+          console.error("Error creating user: ", err); // Log the error
+          return res.status(400).json({ message: "Error creating user", error: err });
+        });
+    })
+    .catch((err) => {
+      console.error("Error checking for existing user: ", err); // Log the error
+      return res.status(500).json({ message: "Error checking for existing user", error: err });
+    });
+});

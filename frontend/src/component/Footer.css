@@ -1,0 +1,131 @@
+.footer {
+  display: block;
+  background-color: #333;
+  color: #fff;
+  padding: 40px 0;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.footer-section {
+  flex: 1;
+  margin: 20px;
+}
+
+.footer-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.footer-section p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.contact span, .socials a {
+  display: block;
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.socials a {
+  color: #fff;
+  margin-right: 15px;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.socials a:hover {
+  color: #ff6f61;
+}
+
+.footer-section.links ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer-section.links ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section.links ul li a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-section.links ul li a:hover {
+  color: #ff6f61;
+}
+
+.footer-section.newsletter form {
+  display: flex;
+}
+
+.footer-section.newsletter input {
+  padding: 10px;
+  border: none;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  width: 70%;
+}
+
+.footer-section.newsletter button {
+  padding: 10px;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  background-color: #ff6f61;
+  color: #fff;
+  cursor: pointer;
+}
+
+.footer-section.newsletter button:hover {
+  background-color: #ff4d3a;
+}
+
+.footer-bottom {
+  text-align: center;
+  position: absolute;
+  border-top: 1px solid #555;
+  padding-top: 20px;
+  font-size: 0.9rem;
+  background-color: #A41034;
+  width: 100%;
+  bottom: 0;
+  
+  
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-section {
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .footer-section.newsletter form {
+    flex-direction: column;
+  }
+
+  .footer-section.newsletter input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .footer-section.newsletter button {
+    width: 100%;
+  }
+}
